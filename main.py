@@ -13,7 +13,13 @@ ai_model = "gemini-2.0-flash-001"
 user_prompt = []
 
 def store_prompts():
-	return list(sys.argv[1:])
+	try:
+		sys.argv[1] == True
+	except Exception as e:
+		print(f"No user input provided. Please provide a prompt. see also: {e}")
+		sys.exit(1)
+	else:
+		return list(sys.argv[1:])
 
 def main():
 
@@ -22,9 +28,13 @@ def main():
 	#print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
 	#print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 	user_prompt=store_prompts()
-	for i in user_prompt:
-		print(i)
-	print(user_prompt)
+	for prompt in user_prompt:
+		response = client.models.generate_content(model = ai_model, contents = prompt)
+		print(response.text)
+		print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+		print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+	#	print(i)
+	#print(user_prompt)
 
 if __name__ == "__main__":
     main()
