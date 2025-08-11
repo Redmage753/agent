@@ -15,17 +15,6 @@ user_prompt = []
 def store_prompts():
 	return list(sys.argv[1:])
 
-# Using a file example
-#file = client.files.upload(file='a11.txt')
-#response = client.models.generate_content(
-#    model='gemini-2.0-flash-001',
-#    contents=['Could you summarize this file?', file]
-#)
-#print(response.text)
-# https://googleapis.github.io/python-genai/#generate-content
-
-
-
 def main():
 
 	#response = client.models.generate_content(model = ai_model, contents = user_prompt)
@@ -39,3 +28,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Using a file example
+#file = client.files.upload(file='a11.txt')
+#response = client.models.generate_content(
+#    model='gemini-2.0-flash-001',
+#    contents=['Could you summarize this file?', file]
+#)
+#print(response.text)
+# https://googleapis.github.io/python-genai/#generate-content
