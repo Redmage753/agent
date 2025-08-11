@@ -14,11 +14,6 @@ user_prompt = []
 
 def store_prompts():
 	return list(sys.argv[1:])
-#	user_queries = []
-	#return list(map(lambda x: user_queries.append(x), sys.argv[1:]))
-#	for arg in sys.argv[1:]:
-#		user_queries.append(arg) 
-#	return user_queries
 
 # Using a file example
 #file = client.files.upload(file='a11.txt')
