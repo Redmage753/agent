@@ -3,3 +3,4 @@
 uv.lock
 *.swp
 functions/test.py
+functions/__*
