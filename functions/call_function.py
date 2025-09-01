@@ -4,7 +4,7 @@ def call_function(function_call_part, verbose=False):
     for part in function:
         print(part)
     if verbose:
-        print(f"Calling function: {function.name}({**function.args})")
+        print(f"Calling function: {function.name}({function.args})")
     else:
         print(f" - Calling function: {function.name}")
 
