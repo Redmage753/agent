@@ -7,6 +7,7 @@ from functions.get_files_info import get_files_info
 #from functions.get_files_info import schema_get_files_info
 #from functions.get_files_info import available_functions
 import functions.available_functions as af
+import functions.call_function as cf
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -64,6 +65,7 @@ def main():
                 print(response.text)
             for function in response.function_calls:
                 print(f"Calling function: {function.name}({function.args})")
+                print(cf.call_function(function, verbose=True))
         else:
             print(response.text)
     
