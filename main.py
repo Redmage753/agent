@@ -64,8 +64,12 @@ def main():
             if response.text and response.text.strip():
                 print(response.text)
             for function in response.function_calls:
-                print(f"Calling function: {function.name}({function.args})")
-                print(cf.call_function(function, verbose=True))
+                print(f"Requesting function: {function.name}({function.args})")
+                cf.call_function(function, verbose=True)
+            #for key,value in function_map.items():
+            #    if key in af.available_functions:
+                    
+                
         else:
             print(response.text)
     
