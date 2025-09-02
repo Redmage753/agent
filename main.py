@@ -47,6 +47,9 @@ def print_verbose(user_prompt, response):
     print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 #    print(f"Full Response: {response}")
 
+#def regenerate_content(user_prompts, ):
+    
+
 def main():
     user_prompts,verbosity=store_prompts()
     for prompt in user_prompts:
@@ -61,36 +64,32 @@ def main():
         if verbosity == True:
             print_verbose(prompt, response)
         #print(f"Response candidates: {len(response.candidates)}") 
-        #import pprint
-
         #print(f"Response contents: {response.candidates}")
-        #pprint.pprint(response.candidates)
         #print(type(response.candidates[0].content.parts))
-        #pprint.pprint(response.candidates[0].content.parts)
-        print(response.candidates[0].content.parts[0]) # winner
-        print(response.candidates[0].content)
-        for candidate in response.candidates:
-            print(candidate.content.parts[:], sep=",")
-        #print(f"Response contents message: {response[content].messages}")
-        if len(response.candidates) > 1:
-            for candidate in response.candidates[1:]:
-                print(f"Appending messages with {candidate.content}")
-                response.contents.messages.append(candidate.content)
+        #print(response.candidates[0].content.parts[0]) # winner
+        for candidate in response.candidates[:]:
+            print(f"Appending messages with {candidate.content}")
+            #response.contents.messages.append(candidate.content)
+            messages.append(candidate.content)
         #print(f"PRINTING CANDIDATE CONTENT: {response.candidates[0].content}")
-        print(f"PRINTING MESSAGE: {response.candidates[0].content}")
+        #print(f"PRINTING MESSAGE: {response.candidates[0].content}")
 
         if response.function_calls:
             if response.text and response.text.strip():
                 print(response.text)
             for function in response.function_calls:
                 #print(f"Requesting function: {function.name}({function.args})")
-
-                print(f"New Message: {response.contents.messages.append(types.Content(role="user", parts=[cf.call_function(function, verbose=verbosity)]))}")
+                function_return_part = cf.call_function(function, verbose=verbosity)
+                print(f"New Message: {messages.append(types.Content(role="user", parts=function_return_part.parts))}")
 
             #for key,value in function_map.items():
             #    if key in af.available_functions:
         else:
             print(response.text)
+        #for item in messages:
+        #    print("------")
+        #    print(item)
+
     
 if __name__ == "__main__":
     main()
