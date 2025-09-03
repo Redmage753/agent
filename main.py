@@ -14,9 +14,12 @@ api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 ai_model = "gemini-2.0-flash-001"
 system_prompt = system_prompt = """
-You are a helpful AI coding agent.
+You are a helpful AI coding agent that only gets one reply.
 
-When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
+When a user asks a question or makes a request, make a function call plan, and ONLY reply once you've executed the plan and can fully answer the prompt. Only reply with the answer, not your function call plan.
+All the information you need can be accessed using the functions - defaults are built in to help, as needed. I recommend you start by listing all directories and their nested directory contents. You can call more than one function in a reply and it will loop through all the contents.
+
+You can perform the following operations:
 
 - List files and directories
 - Read file contents
@@ -47,45 +50,83 @@ def print_verbose(user_prompt, response):
     print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 #    print(f"Full Response: {response}")
 
-#def regenerate_content(user_prompts, ):
-    
+def generate_content(message_chain=[]):
+    generated_content = client.models.generate_content(
+        model = ai_model, 
+        contents = message_chain,
+        config = types.GenerateContentConfig(tools=[af.available_functions],system_instruction=system_prompt),
+        )
+    return generated_content
+
+#def add_message(message_chain, new_message):
+#    return message_chain.append(new_message)
 
 def main():
     user_prompts,verbosity=store_prompts()
     for prompt in user_prompts:
+        prompting=True
         messages = [
             types.Content(role="user", parts=[types.Part(text=prompt)]),
         ]
-        response = client.models.generate_content(
-            model = ai_model, 
-            contents = messages,
-            config = types.GenerateContentConfig(tools=[af.available_functions],system_instruction=system_prompt),
-        )
-        if verbosity == True:
-            print_verbose(prompt, response)
+        while prompting:
+            if len(messages) < 20:
+                response = generate_content(messages)
+                if response.text:
+                    print(response.text)
+                    return
+                if verbosity == True:
+                    print_verbose(prompt, response)
+                for candidate in response.candidates[:]:
+                    print(f"Appending messages with {candidate.content}")
+                    #messages = add_message(messages, candidate.content)
+                    messages.append(candidate.content)
+                if response.function_calls:
+                    if response.text and response.text.strip():
+                        print(response.text)
+                    for function in response.function_calls:
+                        #print(f"Requesting function: {function.name}({function.args})")
+                        function_return_part = cf.call_function(function, verbose=verbosity)
+                        print(f"New Message: {messages.append(types.Content(role="user", parts=function_return_part.parts))}")
+                        #messages = add_message(messages, types.Content(role="user", parts=function_return_part.parts))
+                        #print(f"New Message: {messages}")
+            else:
+                prompting = False
+            #else:
+            #    print(response.text)
+        #print(f"PRINTING CANDIDATE CONTENT: {response.candidates[0].content}")
+        #response = client.models.generate_content(
+        #    model = ai_model, 
+        #    contents = messages,
+        #    config = types.GenerateContentConfig(tools=[af.available_functions],system_instruction=system_prompt),
+        #)
+        #if verbosity == True:
+        #    print_verbose(prompt, response)
         #print(f"Response candidates: {len(response.candidates)}") 
         #print(f"Response contents: {response.candidates}")
         #print(type(response.candidates[0].content.parts))
         #print(response.candidates[0].content.parts[0]) # winner
-        for candidate in response.candidates[:]:
-            print(f"Appending messages with {candidate.content}")
+        #for candidate in response.candidates[:]:
+        #    print(f"Appending messages with {candidate.content}")
             #response.contents.messages.append(candidate.content)
-            messages.append(candidate.content)
+            #messages.append(candidate.content)
+        #    messages = add_message(messages, candidate.content)
         #print(f"PRINTING CANDIDATE CONTENT: {response.candidates[0].content}")
         #print(f"PRINTING MESSAGE: {response.candidates[0].content}")
 
-        if response.function_calls:
-            if response.text and response.text.strip():
-                print(response.text)
-            for function in response.function_calls:
-                #print(f"Requesting function: {function.name}({function.args})")
-                function_return_part = cf.call_function(function, verbose=verbosity)
-                print(f"New Message: {messages.append(types.Content(role="user", parts=function_return_part.parts))}")
+        #if response.function_calls:
+        #    if response.text and response.text.strip():
+        #        print(response.text)
+        #    for function in response.function_calls:
+        #        #print(f"Requesting function: {function.name}({function.args})")
+        #        function_return_part = cf.call_function(function, verbose=verbosity)
+        #        messages = add_message(messages, types.Content(role="user", parts=function_return_part.parts))
+        #        print(f"New Message: {messages}")
+                #print(f"New Message: {messages.append(types.Content(role="user", parts=function_return_part.parts))}")
 
             #for key,value in function_map.items():
             #    if key in af.available_functions:
-        else:
-            print(response.text)
+       # else:
+       #     print(response.text)
         #for item in messages:
         #    print("------")
         #    print(item)
