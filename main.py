@@ -70,6 +70,8 @@ def main():
         ]
         while prompting:
             if len(messages) < 20:
+                import time
+                time.sleep(20)
                 response = generate_content(messages)
                 if response.text:
                     print(response.text)
